@@ -25,14 +25,23 @@
     <!-- ============ ABOUT SECTION ============ -->
     <section class="about" id="about">
         <div class="container">
-            <h2 class="section-heading">About Skinlytics</h2>
-            <div class="about-content">
-                <p>
-                    At Skinlytics, we believe skincare should be simple, effective, and kind to your skin.
-                    Founded with a passion for clean beauty, we combine cutting-edge AI technology with
-                    dermatologist-backed knowledge to offer personalized skin analysis and product
-                    recommendations tailored just for you.
-                </p>
+            <div class="about-layout">
+                <div class="about-img about-img-left">
+                    <img src="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?w=400&q=80" alt="Woman using jade roller">
+                </div>
+                <div class="about-content">
+                    <span class="about-label">Why trust us?</span>
+                    <p>
+                        At Skinlytics, we believe skincare should be simple, effective,
+                        and kind to your skin and the planet. Founded with a passion for clean beauty,
+                        we offer a curated selection of dermatologist-tested, cruelty-free products
+                        made from safe, skin-loving ingredients.
+                    </p>
+                    <a href="{{ url_for('recommendation.index') }}" class="about-btn">Explore more</a>
+                </div>
+                <div class="about-img about-img-right">
+                    <img src="https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=400&q=80" alt="Skincare products">
+                </div>
             </div>
         </div>
     </section>
@@ -44,6 +53,9 @@
 
                 <div class="mission-card">
                     <h3>Our Mission</h3>
+                    <div class="mission-card-img">
+                        <img src="https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=300&q=80" alt="Woman applying skincare">
+                    </div>
                     <p>
                         To empower every individual with safe, effective, and affordable skincare
                         solutions &mdash; helping them feel confident in their own skin.
@@ -51,11 +63,14 @@
                 </div>
 
                 <div class="vision-card">
-                    <h3>Our Vision</h3>
-                    <p>
-                        To become a trusted global skincare brand that redefines beauty through
-                        inclusivity, sustainability, and science-backed innovation.
-                    </p>
+                    <img class="vision-card-bg" src="https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=600&q=80" alt="Woman with skincare routine">
+                    <div class="vision-card-overlay">
+                        <h3>Our Vision</h3>
+                        <p>
+                            To become a trusted global skincare brand that redefines beauty through
+                            inclusivity, sustainability, and science-backed innovation.
+                        </p>
+                    </div>
                 </div>
 
             </div>
@@ -107,7 +122,7 @@
     <section class="faq" id="faq">
         <div class="container">
             <div class="faq-header">
-                <span class="faq-label">/FAQ</span>
+                <span class="faq-label">FAQ</span>
                 <h2 class="section-heading">Frequently Asked Questions</h2>
                 <p class="faq-subtext">
                     Stay glowing with expert skincare advice, daily routines, ingredient breakdowns,

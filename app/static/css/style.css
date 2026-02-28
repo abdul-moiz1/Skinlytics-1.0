@@ -899,10 +899,41 @@ main {
 .about {
     background-color: var(--color-cream);
     padding: var(--spacing-4xl) 0;
+    overflow: hidden;
 }
 
 .about .container {
-    max-width: 900px;
+    max-width: 1100px;
+}
+
+.about-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
+    gap: var(--spacing-2xl);
+    align-items: center;
+}
+
+.about-img img {
+    width: 100%;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    transition: transform var(--transition-base);
+}
+
+.about-img-left img {
+    transform: rotate(-6deg);
+}
+
+.about-img-right img {
+    transform: rotate(6deg);
+}
+
+.about-img-left:hover img {
+    transform: rotate(0deg);
+}
+
+.about-img-right:hover img {
+    transform: rotate(0deg);
 }
 
 .about-content {
@@ -910,55 +941,37 @@ main {
     padding: var(--spacing-xl) 0;
 }
 
-.about-content h2 {
+.about-label {
+    display: block;
     font-family: var(--font-heading);
-    font-size: 2.2rem;
+    font-size: 1.5rem;
     color: var(--color-text-dark);
     margin-bottom: var(--spacing-lg);
 }
 
 .about-content p {
-    font-size: 1.05rem;
-    color: var(--color-text-muted);
-    line-height: 1.8;
-    max-width: 700px;
-    margin: 0 auto var(--spacing-md);
-}
-
-.about-accent {
-    display: inline-block;
-    width: 60px;
-    height: 3px;
-    background-color: var(--color-primary);
-    border-radius: var(--radius-full);
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    color: var(--color-text-dark);
+    line-height: 1.7;
     margin-bottom: var(--spacing-xl);
 }
 
-.about-two-col {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-3xl);
-    align-items: center;
-    text-align: left;
+.about-btn {
+    display: inline-block;
+    padding: 0.7rem 2rem;
+    background-color: var(--color-text-dark);
+    color: var(--color-white);
+    border-radius: var(--radius-full);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color var(--transition-base), transform var(--transition-base);
 }
 
-.about-two-col .about-text {
-    border-left: 4px solid var(--color-primary);
-    padding-left: var(--spacing-xl);
-}
-
-.about-two-col .about-text h2 {
-    text-align: left;
-    margin-bottom: var(--spacing-md);
-}
-
-.about-two-col .about-text p {
-    margin: 0 0 var(--spacing-md) 0;
-}
-
-.about-two-col .about-image img {
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-lg);
+.about-btn:hover {
+    background-color: var(--color-primary);
+    transform: translateY(-2px);
 }
 
 
@@ -981,13 +994,9 @@ main {
 .mission-card,
 .vision-card {
     border-radius: var(--radius-xl);
-    padding: var(--spacing-2xl);
     box-shadow: var(--shadow-md);
     transition: transform var(--transition-base), box-shadow var(--transition-base);
-    min-height: 380px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    min-height: 420px;
     overflow: hidden;
     position: relative;
 }
@@ -998,72 +1007,91 @@ main {
     box-shadow: var(--shadow-xl);
 }
 
+/* --- Mission Card --- */
 .mission-card {
     background-color: var(--color-primary);
     color: var(--color-white);
+    padding: var(--spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 .mission-card h3 {
     font-family: var(--font-heading);
     font-size: 1.8rem;
     color: var(--color-white);
-    margin-bottom: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+}
+
+.mission-card-img {
+    width: 140px;
+    height: 160px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transform: rotate(-5deg);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: var(--spacing-lg);
+    flex-shrink: 0;
+    transition: transform var(--transition-base);
+}
+
+.mission-card:hover .mission-card-img {
+    transform: rotate(0deg);
+}
+
+.mission-card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .mission-card p {
     font-size: 1rem;
     color: rgba(255, 255, 255, 0.9);
     line-height: 1.7;
+    margin-top: auto;
 }
 
-.mission-card .card-image {
-    width: 120px;
-    height: 120px;
-    border-radius: var(--radius-lg);
-    background-color: rgba(255, 255, 255, 0.15);
-    margin-bottom: var(--spacing-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2.5rem;
-    transform: rotate(-5deg);
-    transition: transform var(--transition-base);
-}
-
-.mission-card:hover .card-image {
-    transform: rotate(0deg);
-}
-
+/* --- Vision Card --- */
 .vision-card {
-    background-color: var(--color-white);
-    color: var(--color-text-dark);
-    border: 2px solid var(--color-border-light);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 0;
+    background-color: var(--color-text-dark);
 }
 
-.vision-card h3 {
+.vision-card-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.vision-card-overlay {
+    position: relative;
+    z-index: 2;
+    padding: var(--spacing-2xl);
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+    margin-top: auto;
+}
+
+.vision-card-overlay h3 {
     font-family: var(--font-heading);
     font-size: 1.8rem;
-    color: var(--color-text-dark);
-    margin-bottom: var(--spacing-md);
+    color: var(--color-white);
+    margin-bottom: var(--spacing-sm);
 }
 
-.vision-card p {
-    font-size: 1rem;
-    color: var(--color-text-muted);
+.vision-card-overlay p {
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
     line-height: 1.7;
-}
-
-.vision-card .card-image {
-    width: 160px;
-    height: 160px;
-    border-radius: var(--radius-xl);
-    background-color: var(--color-beige);
-    border: 2px solid var(--color-secondary);
-    margin-bottom: var(--spacing-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 3rem;
 }
 
 
@@ -1157,6 +1185,27 @@ main {
 .faq {
     background-color: var(--color-cream);
     padding: var(--spacing-4xl) 0;
+}
+
+.faq-header {
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.faq-label {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: var(--color-text-dark);
+    margin-bottom: var(--spacing-sm);
+}
+
+.faq-subtext {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .faq-layout {
@@ -2819,9 +2868,10 @@ main {
         font-size: 2.8rem;
     }
 
-    /* About two-col */
-    .about-two-col {
-        gap: var(--spacing-xl);
+    /* About layout */
+    .about-layout {
+        grid-template-columns: 150px 1fr 150px;
+        gap: var(--spacing-lg);
     }
 
     /* Mission Vision */
@@ -2832,6 +2882,9 @@ main {
     .mission-card,
     .vision-card {
         min-height: 320px;
+    }
+
+    .mission-card {
         padding: var(--spacing-xl);
     }
 
@@ -2982,20 +3035,19 @@ main {
     }
 
     /* ---- About Mobile ---- */
-    .about-two-col {
+    .about-layout {
         grid-template-columns: 1fr;
-        text-align: center;
+        gap: var(--spacing-lg);
     }
 
-    .about-two-col .about-text {
-        border-left: none;
-        padding-left: 0;
-        border-top: 3px solid var(--color-primary);
-        padding-top: var(--spacing-lg);
+    .about-img-left,
+    .about-img-right {
+        max-width: 160px;
+        margin: 0 auto;
     }
 
-    .about-two-col .about-text h2 {
-        text-align: center;
+    .about-content p {
+        font-size: 1.1rem;
     }
 
     /* ---- Mission Vision Mobile ---- */
@@ -3005,7 +3057,7 @@ main {
 
     .mission-card,
     .vision-card {
-        min-height: auto;
+        min-height: 320px;
     }
 
     /* ---- Why Analyze Mobile ---- */
