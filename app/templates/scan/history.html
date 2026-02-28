@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="result-page">
+    <div class="container">
+
+        <div class="result-header">
+            <h1>Analysis History</h1>
+            <p>Your past skin analysis results</p>
+        </div>
+
+        {% if analyses %}
+        <div class="history-grid">
+            {% for analysis in analyses %}
+            <a href="{{ url_for('scan.result', analysis_id=analysis.id) }}" class="history-card">
+                <div class="history-card-image">
+                    <img src="{{ url_for('static', filename='uploads/' + analysis.image_filename) }}" alt="Analysis from {{ analysis.created_at.strftime('%B %d, %Y') }}">
+                </div>
+                <div class="history-card-info">
+                    <div class="history-card-condition">{{ analysis.condition }}</div>
+                    <div class="history-card-meta">
+                        <span class="history-confidence">{{ analysis.confidence }}% confidence</span>
+                        <span class="history-date">{{ analysis.created_at.strftime('%b %d, %Y') }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="history-empty">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <h3>No analysis results yet</h3>
+            <p>Start by uploading an image to analyze your skin.</p>
+            <a href="{{ url_for('scan.index') }}" class="btn btn-primary">Start Scan</a>
+        </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask, flash, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
@@ -42,6 +42,12 @@ def create_app(config_class=Config):
 
     from app.blog import bp as blog_bp
     app.register_blueprint(blog_bp, url_prefix='/blog')
+
+    # Error handler for file too large
+    @app.errorhandler(413)
+    def too_large(e):
+        flash('File too large. Maximum allowed size is 5 MB. Please choose a smaller image.', 'danger')
+        return redirect(url_for('scan.index'))
 
     # User loader for Flask-Login
     from app.models import User

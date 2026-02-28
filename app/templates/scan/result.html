@@ -1,29 +1,100 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="result-container">
-    <div class="result-image">
-        <img src="{{ url_for('static', filename='uploads/' + analysis.image_filename) }}" alt="Skin Analysis">
-    </div>
+<section class="result-page">
+    <div class="container">
 
-    <div class="result-card">
-        <h2>Prediction Results</h2>
-        <p>Analyzed on {{ analysis.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        <!-- Header -->
+        <div class="result-header">
+            <h1>Your Skin Analysis Results</h1>
+            <p>Analyzed on {{ analysis.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        </div>
 
-        <h3>{{ analysis.condition }}</h3>
+        <!-- Main Results Grid: Image + Diagnosis Card -->
+        <div class="result-grid">
 
-        <div class="confidence-bar-container">
-            <span>Confidence</span>
-            <div class="confidence-bar">
-                <div class="confidence-fill" style="width: {{ analysis.confidence }}%">{{ analysis.confidence }}%</div>
+            <!-- Left: Uploaded Image -->
+            <div class="result-image-card">
+                <img src="{{ url_for('static', filename='uploads/' + analysis.image_filename) }}" alt="Your skin analysis photo">
+            </div>
+
+            <!-- Right: Diagnosis Card -->
+            <div class="result-diagnosis-card">
+                <div class="diagnosis-badge">
+                    <span class="diagnosis-label">Detected Condition</span>
+                    <h2 class="diagnosis-condition">{{ analysis.condition }}</h2>
+                </div>
+
+                <div class="confidence-section">
+                    <div class="confidence-header">
+                        <span>Confidence Score</span>
+                        <span class="confidence-value">{{ analysis.confidence }}%</span>
+                    </div>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: {{ analysis.confidence }}%"></div>
+                    </div>
+                </div>
+
+                <div class="diagnosis-explanation">
+                    <h3>What This Means</h3>
+                    <p>{{ explanation }}</p>
+                </div>
+
+                <div class="diagnosis-skin-type">
+                    <span class="skin-type-badge">Recommended for: {{ skin_type_name }} Skin</span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="result-actions">
-        <a href="{{ url_for('quiz.index') }}" class="btn btn-primary">Start Quiz</a>
-        <a href="{{ url_for('scan.index') }}" class="btn btn-secondary">Scan Again</a>
-        <a href="{{ url_for('recommendation.index') }}" class="btn btn-outline">View Recommendations</a>
+        <!-- Recommended Products Section -->
+        {% if products %}
+        <div class="result-section">
+            <h3 class="result-section-title">Recommended Products for You</h3>
+            <p class="result-section-subtitle">Based on your {{ analysis.condition | lower }} analysis, these products are tailored for {{ skin_type_name | lower }} skin.</p>
+            <div class="products-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <div class="product-image">
+                        {% if product.image_filename %}
+                        <img src="{{ url_for('static', filename=product.image_filename) }}" alt="{{ product.name }}" onerror="this.parentElement.innerHTML='&#9752;'">
+                        {% else %}
+                        <span>&#9752;</span>
+                        {% endif %}
+                    </div>
+                    <div class="product-info">
+                        <h4>{{ product.name }}</h4>
+                        <p>{{ product.description }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recommended Ingredients Section -->
+        {% if ingredients %}
+        <div class="result-section">
+            <h3 class="result-section-title">Key Ingredients to Look For</h3>
+            <p class="result-section-subtitle">These active ingredients are particularly beneficial for your skin condition.</p>
+            <div class="ingredients-grid">
+                {% for ing in ingredients %}
+                <div class="ingredient-card">
+                    <div class="ingredient-icon">&#127807;</div>
+                    <h4>{{ ing.name }}</h4>
+                    <p>{{ ing.description }}</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="result-actions">
+            <a href="{{ url_for('scan.history') }}" class="btn btn-outline">Back to History</a>
+            <a href="{{ url_for('scan.index') }}" class="btn btn-primary">Scan Again</a>
+            <a href="{{ url_for('recommendation.index') }}" class="btn btn-secondary">View All Recommendations</a>
+        </div>
+
     </div>
-</div>
+</section>
 {% endblock %}

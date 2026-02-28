@@ -37,6 +37,18 @@
     <img id="image-preview" alt="Uploaded image preview">
 </div>
 
+{% if form.image.errors %}
+<div class="scan-errors">
+    {% for error in form.image.errors %}
+    <div class="scan-error-message">
+        <span class="error-icon">&#9888;</span> {{ error }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div id="client-errors"></div>
+
 <form method="POST" enctype="multipart/form-data" action="{{ url_for('scan.index') }}" id="upload-form">
     {{ form.hidden_tag() }}
     {{ form.image(id='file-input', style='display:none') }}
@@ -45,55 +57,147 @@
     </button>
 </form>
 
-<form method="POST" enctype="multipart/form-data" action="{{ url_for('scan.upload_webcam') }}" id="webcam-form" style="display: none;">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="webcam_image" id="webcam-image-data">
-</form>
+<!-- Face Scanner Overlay -->
+<div id="face-scanner" class="face-scanner" style="display: none;">
+    <div class="scanner-content">
+        <div class="scanner-image-container">
+            <img id="scanner-image" src="" alt="Scanning">
+            <div class="scanner-line"></div>
+            <div class="scanner-grid"></div>
+            <div class="scanner-corners">
+                <span class="corner corner-tl"></span>
+                <span class="corner corner-tr"></span>
+                <span class="corner corner-bl"></span>
+                <span class="corner corner-br"></span>
+            </div>
+        </div>
+        <p class="scanner-text">Scanning face...</p>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="analysis-loader" class="analysis-loader" style="display: none;">
+    <div class="loader-content">
+        <div class="loader-animation">
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+            <div class="loader-ring"></div>
+        </div>
+        <h2 class="loader-title">Analyzing Your Skin</h2>
+        <p class="loader-subtitle">Our AI is examining your skin for conditions and recommendations...</p>
+        <div class="loader-progress">
+            <div class="loader-progress-bar"></div>
+        </div>
+        <div class="loader-steps">
+            <div class="loader-step active" id="step-1">
+                <span class="step-icon">&#128269;</span>
+                <span class="step-text">Scanning image...</span>
+            </div>
+            <div class="loader-step" id="step-2">
+                <span class="step-icon">&#129504;</span>
+                <span class="step-text">Detecting conditions...</span>
+            </div>
+            <div class="loader-step" id="step-3">
+                <span class="step-icon">&#128161;</span>
+                <span class="step-text">Generating recommendations...</span>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const startScanBtn = document.getElementById('start-scan-btn');
-    const uploadImageBtn = document.getElementById('upload-image-btn');
-    const webcamSection = document.getElementById('webcam-section');
-    const webcamVideo = document.getElementById('webcam-video');
-    const webcamCanvas = document.getElementById('webcam-canvas');
-    const captureBtn = document.getElementById('capture-btn');
-    const uploadPreview = document.getElementById('upload-preview');
-    const imagePreview = document.getElementById('image-preview');
-    const fileInput = document.getElementById('file-input');
-    const analyzeBtn = document.getElementById('analyze-btn');
-    const webcamForm = document.getElementById('webcam-form');
-    const webcamImageData = document.getElementById('webcam-image-data');
+    var startScanBtn = document.getElementById('start-scan-btn');
+    var uploadImageBtn = document.getElementById('upload-image-btn');
+    var webcamSection = document.getElementById('webcam-section');
+    var webcamVideo = document.getElementById('webcam-video');
+    var webcamCanvas = document.getElementById('webcam-canvas');
+    var captureBtn = document.getElementById('capture-btn');
+    var uploadPreview = document.getElementById('upload-preview');
+    var imagePreview = document.getElementById('image-preview');
+    var fileInput = document.getElementById('file-input');
+    var analyzeBtn = document.getElementById('analyze-btn');
+    var uploadForm = document.getElementById('upload-form');
+    var loader = document.getElementById('analysis-loader');
+    var faceScanner = document.getElementById('face-scanner');
+    var scannerImage = document.getElementById('scanner-image');
+    var clientErrors = document.getElementById('client-errors');
+    var csrfToken = '{{ csrf_token() }}';
 
-    let stream = null;
+    var stream = null;
+
+    var MAX_FILE_SIZE = 5 * 1024 * 1024;
+    var ALLOWED_TYPES = ['image/jpeg', 'image/png'];
+
+    function showError(message) {
+        clearErrors();
+        clientErrors.innerHTML = '<div class="scan-errors"><div class="scan-error-message"><span class="error-icon">&#9888;</span> ' + message + '</div></div>';
+    }
+
+    function clearErrors() {
+        clientErrors.innerHTML = '';
+    }
+
+    function showLoader() {
+        faceScanner.style.display = 'none';
+        loader.style.display = 'flex';
+
+        var steps = document.querySelectorAll('.loader-step');
+        // Reset steps
+        steps.forEach(function(s) { s.classList.remove('active', 'completed'); });
+        steps[0].classList.add('active');
+
+        setTimeout(function() {
+            steps[0].classList.add('completed');
+            steps[1].classList.add('active');
+        }, 1200);
+        setTimeout(function() {
+            steps[1].classList.add('completed');
+            steps[2].classList.add('active');
+        }, 2400);
+    }
+
+    function showFaceScanner(imageSrc, callback) {
+        scannerImage.src = imageSrc;
+        faceScanner.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+
+        // After 3 seconds, transition to loader and execute callback
+        setTimeout(function() {
+            showLoader();
+            if (callback) callback();
+        }, 3000);
+    }
 
     // Start Scanning - open webcam
     startScanBtn.addEventListener('click', async function() {
         try {
             stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
             webcamVideo.srcObject = stream;
-            webcamSection.style.display = 'block';
+            webcamSection.style.display = 'flex';
             uploadPreview.style.display = 'none';
             analyzeBtn.style.display = 'none';
+            clearErrors();
         } catch (err) {
-            alert('Unable to access camera. Please check your permissions.');
+            showError('Unable to access camera. Please check your permissions.');
             console.error('Camera error:', err);
         }
     });
 
-    // Capture frame from webcam
+    // Capture frame from webcam and send via fetch
     captureBtn.addEventListener('click', function() {
-        const context = webcamCanvas.getContext('2d');
+        var context = webcamCanvas.getContext('2d');
         webcamCanvas.width = webcamVideo.videoWidth;
         webcamCanvas.height = webcamVideo.videoHeight;
         context.drawImage(webcamVideo, 0, 0);
 
-        const dataUrl = webcamCanvas.toDataURL('image/jpeg');
-        webcamImageData.value = dataUrl;
+        // Get data URL for preview/scanner
+        var dataUrl = webcamCanvas.toDataURL('image/jpeg');
 
         // Stop webcam
         if (stream) {
-            stream.getTracks().forEach(track => track.stop());
+            stream.getTracks().forEach(function(track) { track.stop(); });
+            stream = null;
         }
         webcamSection.style.display = 'none';
 
@@ -101,8 +205,15 @@ document.addEventListener('DOMContentLoaded', function() {
         imagePreview.src = dataUrl;
         uploadPreview.style.display = 'block';
 
-        // Submit webcam form
-        webcamForm.submit();
+        // Show face scanner, then send to backend
+        showFaceScanner(dataUrl, function() {
+            // Convert canvas to blob and send via fetch
+            webcamCanvas.toBlob(function(blob) {
+                var formData = new FormData();
+                formData.append('image', blob, 'webcam_capture.png');
+                sendToBackend(formData);
+            }, 'image/png');
+        });
     });
 
     // Upload Image - trigger file input
@@ -110,24 +221,97 @@ document.addEventListener('DOMContentLoaded', function() {
         fileInput.click();
     });
 
-    // Handle file selection
+    // Handle file selection with validation
     fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                imagePreview.src = event.target.result;
-                uploadPreview.style.display = 'block';
-                webcamSection.style.display = 'none';
-                analyzeBtn.style.display = 'inline-flex';
-            };
-            reader.readAsDataURL(file);
+        var file = e.target.files[0];
+        if (!file) return;
 
-            // Stop webcam if running
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-            }
+        // Validate file type
+        if (!ALLOWED_TYPES.includes(file.type)) {
+            showError('Invalid file type. Only JPG and PNG images are allowed.');
+            fileInput.value = '';
+            uploadPreview.style.display = 'none';
+            analyzeBtn.style.display = 'none';
+            return;
         }
+
+        // Validate file size
+        if (file.size > MAX_FILE_SIZE) {
+            showError('File is too large. Maximum size is 5 MB.');
+            fileInput.value = '';
+            uploadPreview.style.display = 'none';
+            analyzeBtn.style.display = 'none';
+            return;
+        }
+
+        clearErrors();
+
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            imagePreview.src = event.target.result;
+            uploadPreview.style.display = 'block';
+            webcamSection.style.display = 'none';
+            analyzeBtn.style.display = 'inline-flex';
+        };
+        reader.readAsDataURL(file);
+
+        // Stop webcam if running
+        if (stream) {
+            stream.getTracks().forEach(function(track) { track.stop(); });
+            stream = null;
+        }
+    });
+
+    // Shared fetch helper — loader stays at least 5 seconds
+    function sendToBackend(formData) {
+        var MIN_LOADER_MS = 5000;
+        var loaderStart = Date.now();
+
+        fetch('{{ url_for("scan.upload_ajax") }}', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrfToken },
+            body: formData
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            var elapsed = Date.now() - loaderStart;
+            var remaining = Math.max(0, MIN_LOADER_MS - elapsed);
+
+            setTimeout(function() {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else if (data.error) {
+                    loader.style.display = 'none';
+                    document.body.style.overflow = '';
+                    showError(data.error);
+                }
+            }, remaining);
+        })
+        .catch(function(err) {
+            var elapsed = Date.now() - loaderStart;
+            var remaining = Math.max(0, MIN_LOADER_MS - elapsed);
+
+            setTimeout(function() {
+                loader.style.display = 'none';
+                document.body.style.overflow = '';
+                showError('Something went wrong. Please try again.');
+            }, remaining);
+            console.error('Upload error:', err);
+        });
+    }
+
+    // Intercept form submit — show face scanner, then send via fetch
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var file = fileInput.files[0];
+        if (!file) return;
+
+        var imageSrc = imagePreview.src;
+        showFaceScanner(imageSrc, function() {
+            var formData = new FormData();
+            formData.append('image', file);
+            sendToBackend(formData);
+        });
     });
 });
 </script>

@@ -26,6 +26,31 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // ---- User Dropdown Toggle ----
+    const userDropdown = document.getElementById('userDropdown');
+    const userDropdownTrigger = document.getElementById('userDropdownTrigger');
+
+    if (userDropdown && userDropdownTrigger) {
+        userDropdownTrigger.addEventListener('click', function (e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('open');
+        });
+
+        // Close on click outside
+        document.addEventListener('click', function (e) {
+            if (!userDropdown.contains(e.target)) {
+                userDropdown.classList.remove('open');
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                userDropdown.classList.remove('open');
+            }
+        });
+    }
+
     // ---- Flash Message Auto-Dismiss ----
     const flashMessages = document.querySelectorAll('.flash-message');
     flashMessages.forEach(function (msg) {
@@ -111,116 +136,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (radio) radio.checked = true;
         });
     });
-
-    // ---- Webcam Functionality (Scan Page) ----
-    const startScanBtn = document.getElementById('start-scan-btn');
-    const uploadImageBtn = document.getElementById('upload-image-btn');
-    const webcamSection = document.getElementById('webcam-section');
-    const webcamVideo = document.getElementById('webcam-video');
-    const webcamCanvas = document.getElementById('webcam-canvas');
-    const captureBtn = document.getElementById('capture-btn');
-    const uploadPreview = document.getElementById('upload-preview');
-    const imagePreview = document.getElementById('image-preview');
-
-    let webcamStream = null;
-
-    if (startScanBtn) {
-        startScanBtn.addEventListener('click', function () {
-            if (uploadPreview) uploadPreview.style.display = 'none';
-            if (webcamSection) webcamSection.style.display = 'block';
-
-            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 } })
-                .then(function (stream) {
-                    webcamStream = stream;
-                    webcamVideo.srcObject = stream;
-                    webcamVideo.play();
-                })
-                .catch(function (err) {
-                    alert('Could not access camera. Please check your permissions or use the Upload option.');
-                    console.error('Webcam error:', err);
-                });
-        });
-    }
-
-    if (captureBtn && webcamCanvas && webcamVideo) {
-        captureBtn.addEventListener('click', function () {
-            const ctx = webcamCanvas.getContext('2d');
-            webcamCanvas.width = webcamVideo.videoWidth;
-            webcamCanvas.height = webcamVideo.videoHeight;
-            ctx.drawImage(webcamVideo, 0, 0);
-
-            // Stop webcam
-            if (webcamStream) {
-                webcamStream.getTracks().forEach(function (track) { track.stop(); });
-            }
-
-            // Convert to blob and submit
-            webcamCanvas.toBlob(function (blob) {
-                const formData = new FormData();
-                formData.append('image', blob, 'webcam-capture.png');
-
-                // Get CSRF token
-                const csrfToken = document.querySelector('input[name="csrf_token"]');
-                if (csrfToken) {
-                    formData.append('csrf_token', csrfToken.value);
-                }
-
-                // Submit via fetch
-                const webcamForm = document.getElementById('webcam-form');
-                if (webcamForm) {
-                    fetch(webcamForm.action, {
-                        method: 'POST',
-                        body: formData
-                    }).then(function (response) {
-                        if (response.redirected) {
-                            window.location.href = response.url;
-                        }
-                    }).catch(function (err) {
-                        alert('Error submitting capture. Please try again.');
-                        console.error(err);
-                    });
-                }
-            }, 'image/png');
-
-            // Show preview
-            webcamSection.style.display = 'none';
-            if (uploadPreview) {
-                uploadPreview.style.display = 'block';
-                imagePreview.src = webcamCanvas.toDataURL('image/png');
-            }
-        });
-    }
-
-    // File upload preview
-    if (uploadImageBtn) {
-        const fileInput = document.querySelector('input[type="file"]');
-        uploadImageBtn.addEventListener('click', function () {
-            if (fileInput) fileInput.click();
-        });
-
-        if (fileInput) {
-            fileInput.addEventListener('change', function () {
-                if (this.files && this.files[0]) {
-                    // Hide webcam
-                    if (webcamSection) webcamSection.style.display = 'none';
-                    if (webcamStream) {
-                        webcamStream.getTracks().forEach(function (track) { track.stop(); });
-                    }
-
-                    // Show preview
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        if (uploadPreview) uploadPreview.style.display = 'block';
-                        if (imagePreview) imagePreview.src = e.target.result;
-                        // Show analyze button
-                        const analyzeBtn = document.querySelector('.analyze-btn');
-                        if (analyzeBtn) analyzeBtn.style.display = 'inline-block';
-                    };
-                    reader.readAsDataURL(this.files[0]);
-                }
-            });
-        }
-    }
 
     // ---- Quiz Navigation ----
     const quizQuestions = document.querySelectorAll('.quiz-question');
