@@ -1529,17 +1529,19 @@ main {
 }
 
 .instructions-panel {
-    background-color: var(--color-dark-green);
-    color: var(--color-white);
+    background-color: var(--color-warm-white);
+    color: var(--color-text-dark);
     border-radius: var(--radius-xl);
     padding: var(--spacing-xl) var(--spacing-2xl);
     margin-bottom: var(--spacing-xl);
+    border: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-sm);
 }
 
 .instructions-panel h3 {
     font-family: var(--font-heading);
     font-size: 1.3rem;
-    color: var(--color-cream);
+    color: var(--color-dark-green);
     margin-bottom: var(--spacing-md);
 }
 
@@ -1551,7 +1553,7 @@ main {
 
 .instructions-panel ul li {
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--color-text-dark);
     padding-left: var(--spacing-lg);
     position: relative;
     line-height: 1.6;
@@ -1650,6 +1652,10 @@ main {
     box-shadow: var(--shadow-lg);
     margin: 0 auto;
     object-fit: contain;
+}
+
+#upload-form {
+    text-align: center;
 }
 
 .analyze-btn {
