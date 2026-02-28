@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-image">
+        <img src="{{ url_for('static', filename='uploads/' + analysis.image_filename) }}" alt="Skin Analysis">
+    </div>
+
+    <div class="result-card">
+        <h2>Prediction Results</h2>
+        <p>Analyzed on {{ analysis.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+
+        <h3>{{ analysis.condition }}</h3>
+
+        <div class="confidence-bar-container">
+            <span>Confidence</span>
+            <div class="confidence-bar">
+                <div class="confidence-fill" style="width: {{ analysis.confidence }}%">{{ analysis.confidence }}%</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="result-actions">
+        <a href="{{ url_for('quiz.index') }}" class="btn btn-primary">Start Quiz</a>
+        <a href="{{ url_for('scan.index') }}" class="btn btn-secondary">Scan Again</a>
+        <a href="{{ url_for('recommendation.index') }}" class="btn btn-outline">View Recommendations</a>
+    </div>
+</div>
+{% endblock %}

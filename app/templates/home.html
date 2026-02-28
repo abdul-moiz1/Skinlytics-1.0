@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Skinlytics — AI-Powered Skincare Analysis{% endblock %}
+
+{% block content %}
+
+    <!-- ============ HERO SECTION ============ -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <span class="hero-badge">AI-Powered Skincare</span>
+                <h1>Pure Ingredients for <span class="highlight">Radiant Skin</span> Everyday</h1>
+                <p>Discover AI-powered skin analysis and personalized skincare recommendations tailored just for you.</p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('auth.register') }}" class="hero-cta">Get Started</a>
+                    <a href="#about" class="hero-cta-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="{{ url_for('static', filename='images/hero.jpg') }}" alt="Skincare products and ingredients">
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ ABOUT SECTION ============ -->
+    <section class="about" id="about">
+        <div class="container">
+            <h2 class="section-heading">About Skinlytics</h2>
+            <div class="about-content">
+                <p>
+                    At Skinlytics, we believe skincare should be simple, effective, and kind to your skin.
+                    Founded with a passion for clean beauty, we combine cutting-edge AI technology with
+                    dermatologist-backed knowledge to offer personalized skin analysis and product
+                    recommendations tailored just for you.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ MISSION & VISION SECTION ============ -->
+    <section class="mission-vision" id="mission-vision">
+        <div class="container">
+            <div class="mission-vision-grid">
+
+                <div class="mission-card">
+                    <h3>Our Mission</h3>
+                    <p>
+                        To empower every individual with safe, effective, and affordable skincare
+                        solutions &mdash; helping them feel confident in their own skin.
+                    </p>
+                </div>
+
+                <div class="vision-card">
+                    <h3>Our Vision</h3>
+                    <p>
+                        To become a trusted global skincare brand that redefines beauty through
+                        inclusivity, sustainability, and science-backed innovation.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ WHY ANALYZE SECTION ============ -->
+    <section class="why-analyze" id="why-analyze">
+        <div class="container">
+            <h2 class="section-heading text-center">Why We Need to Analyze Our Skin?</h2>
+
+            <div class="why-analyze-grid">
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span>&#128269;</span>
+                    </div>
+                    <h3>Understand Your Skin</h3>
+                    <p>
+                        Everyone's skin is unique. Analysis helps identify your exact skin type and conditions.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span>&#128737;</span>
+                    </div>
+                    <h3>Prevent Problems Early</h3>
+                    <p>
+                        Early detection of skin issues like acne, dryness, or pigmentation leads to better outcomes.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span>&#10024;</span>
+                    </div>
+                    <h3>Personalized Care</h3>
+                    <p>
+                        Get product and ingredient recommendations tailored specifically to your skin's needs.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ FAQ SECTION ============ -->
+    <section class="faq" id="faq">
+        <div class="container">
+            <div class="faq-header">
+                <span class="faq-label">/FAQ</span>
+                <h2 class="section-heading">Frequently Asked Questions</h2>
+                <p class="faq-subtext">
+                    Stay glowing with expert skincare advice, daily routines, ingredient breakdowns,
+                    and insider tricks &mdash; everything you need for healthy, radiant skin.
+                </p>
+            </div>
+
+            <div class="faq-accordion">
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What is Skinlytics?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>
+                            Skinlytics is an AI-powered skincare platform that analyzes your skin condition
+                            through uploaded or captured photos and provides personalized product recommendations,
+                            ingredient guides, and skincare tips.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>What makes Skinlytics unique?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>
+                            We combine artificial intelligence with dermatologist-backed knowledge to provide
+                            accurate skin analysis and truly personalized recommendations &mdash; all for free.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>How accurate is the skin analysis?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>
+                            Our analysis engine provides preliminary assessments to guide your skincare journey.
+                            For medical conditions, we always recommend consulting a professional dermatologist.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question" aria-expanded="false">
+                        <span>Is my data safe?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>
+                            Absolutely. We take your privacy seriously. Your photos and personal data are
+                            encrypted and never shared with third parties.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ CTA BANNER SECTION ============ -->
+    <section class="cta-banner">
+        <div class="container">
+            <h2>Start Your Skin Journey Today</h2>
+            <p>
+                Join thousands who trust Skinlytics for their daily skincare routine.
+            </p>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                Get Started Free
+            </a>
+        </div>
+    </section>
+
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="blog-page">
+    <div class="container">
+        <div class="section-heading" style="text-align: center; margin-bottom: var(--spacing-2xl);">
+            <h1>Skincare Blog</h1>
+            <p>Latest articles by dermatologists and skincare experts</p>
+        </div>
+
+        <div class="blog-grid">
+            {% for post in posts %}
+            <a href="{{ url_for('blog.detail', post_id=post.id) }}" class="blog-card">
+                <div class="blog-card-image">
+                    {% if post.featured_image %}
+                    <img src="{{ url_for('static', filename=post.featured_image) }}" alt="{{ post.title }}">
+                    {% else %}
+                    <div class="blog-placeholder-img">Skinlytics</div>
+                    {% endif %}
+                </div>
+                <div class="blog-card-body">
+                    <div class="blog-card-meta">
+                        <span>{{ post.author.username }}</span>
+                        <span>&middot;</span>
+                        <span>{{ post.created_at.strftime('%B %d, %Y') }}</span>
+                    </div>
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.content|striptags|truncate(150) }}</p>
+                    <span class="read-more">Read More &rarr;</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if not posts %}
+        <div class="empty-state">
+            <p>No articles yet. Check back soon!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

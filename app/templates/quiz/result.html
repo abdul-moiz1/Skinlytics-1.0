@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="quiz-container">
+    <h1>Your Skin Type Results</h1>
+
+    <div class="result-card">
+        <h2>{{ result.skin_type_result }}</h2>
+        <p>{{ result.recommendations_text }}</p>
+        <p class="text-muted">{{ result.created_at.strftime('%B %d, %Y at %I:%M %p') }}</p>
+    </div>
+
+    <div class="result-actions">
+        <a href="{{ url_for('recommendation.index') }}" class="btn btn-primary">View Recommendations</a>
+        <a href="{{ url_for('quiz.index') }}" class="btn btn-secondary">Take Quiz Again</a>
+        <a href="{{ url_for('scan.index') }}" class="btn btn-outline">Start Skin Analysis</a>
+    </div>
+</div>
+{% endblock %}

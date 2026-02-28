@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Create Account</h2>
+        <p>Join Skinlytics and start your skincare journey</p>
+
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label>{{ form.username.label.text }}</label>
+                {{ form.username(class='form-input', placeholder='Choose a username') }}
+                {% for error in form.username.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.email.label.text }}</label>
+                {{ form.email(class='form-input', placeholder='Enter your email') }}
+                {% for error in form.email.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.password.label.text }}</label>
+                {{ form.password(class='form-input', placeholder='Create a password') }}
+                {% for error in form.password.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label>{{ form.confirm_password.label.text }}</label>
+                {{ form.confirm_password(class='form-input', placeholder='Confirm your password') }}
+                {% for error in form.confirm_password.errors %}
+                    <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            {{ form.submit(class='btn btn-primary btn-block') }}
+        </form>
+
+        <p class="auth-link">Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a></p>
+    </div>
+</div>
+{% endblock %}

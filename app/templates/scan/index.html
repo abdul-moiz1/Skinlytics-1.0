@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="scan-header">
+    <h1>AI Skin Analysis</h1>
+    <p>Let our AI analyze your skin for personalized recommendations</p>
+</div>
+
+<div class="instructions-panel">
+    <h3>Instructions:</h3>
+    <ul>
+        <li>Position your face within the oval guide</li>
+        <li>Ensure good lighting on your face</li>
+        <li>Remove glasses and look directly at camera</li>
+        <li>Keep still during the scanning process</li>
+        <li>Remove makeup to get better accurate results</li>
+    </ul>
+</div>
+
+<div class="scan-actions">
+    <button type="button" id="start-scan-btn" class="btn btn-primary">
+        Start Scanning
+    </button>
+    <button type="button" id="upload-image-btn" class="btn btn-secondary">
+        Upload Image
+    </button>
+</div>
+
+<div id="webcam-section" class="webcam-section" style="display: none;">
+    <video id="webcam-video" autoplay playsinline></video>
+    <div class="webcam-guide"></div>
+    <button type="button" id="capture-btn" class="btn btn-primary">Capture</button>
+    <canvas id="webcam-canvas" style="display: none;"></canvas>
+</div>
+
+<div id="upload-preview" class="upload-preview" style="display: none;">
+    <img id="image-preview" alt="Uploaded image preview">
+</div>
+
+<form method="POST" enctype="multipart/form-data" action="{{ url_for('scan.index') }}" id="upload-form">
+    {{ form.hidden_tag() }}
+    {{ form.image(id='file-input', style='display:none') }}
+    <button type="submit" class="analyze-btn btn btn-primary btn-lg" id="analyze-btn" style="display: none;">
+        Start Analyzing
+    </button>
+</form>
+
+<form method="POST" enctype="multipart/form-data" action="{{ url_for('scan.upload_webcam') }}" id="webcam-form" style="display: none;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="webcam_image" id="webcam-image-data">
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startScanBtn = document.getElementById('start-scan-btn');
+    const uploadImageBtn = document.getElementById('upload-image-btn');
+    const webcamSection = document.getElementById('webcam-section');
+    const webcamVideo = document.getElementById('webcam-video');
+    const webcamCanvas = document.getElementById('webcam-canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const uploadPreview = document.getElementById('upload-preview');
+    const imagePreview = document.getElementById('image-preview');
+    const fileInput = document.getElementById('file-input');
+    const analyzeBtn = document.getElementById('analyze-btn');
+    const webcamForm = document.getElementById('webcam-form');
+    const webcamImageData = document.getElementById('webcam-image-data');
+
+    let stream = null;
+
+    // Start Scanning - open webcam
+    startScanBtn.addEventListener('click', async function() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
+            webcamVideo.srcObject = stream;
+            webcamSection.style.display = 'block';
+            uploadPreview.style.display = 'none';
+            analyzeBtn.style.display = 'none';
+        } catch (err) {
+            alert('Unable to access camera. Please check your permissions.');
+            console.error('Camera error:', err);
+        }
+    });
+
+    // Capture frame from webcam
+    captureBtn.addEventListener('click', function() {
+        const context = webcamCanvas.getContext('2d');
+        webcamCanvas.width = webcamVideo.videoWidth;
+        webcamCanvas.height = webcamVideo.videoHeight;
+        context.drawImage(webcamVideo, 0, 0);
+
+        const dataUrl = webcamCanvas.toDataURL('image/jpeg');
+        webcamImageData.value = dataUrl;
+
+        // Stop webcam
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        webcamSection.style.display = 'none';
+
+        // Show preview
+        imagePreview.src = dataUrl;
+        uploadPreview.style.display = 'block';
+
+        // Submit webcam form
+        webcamForm.submit();
+    });
+
+    // Upload Image - trigger file input
+    uploadImageBtn.addEventListener('click', function() {
+        fileInput.click();
+    });
+
+    // Handle file selection
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                imagePreview.src = event.target.result;
+                uploadPreview.style.display = 'block';
+                webcamSection.style.display = 'none';
+                analyzeBtn.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+
+            // Stop webcam if running
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

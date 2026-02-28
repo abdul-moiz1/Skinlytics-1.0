@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="recommendation-page">
+    <div class="container">
+        <div class="recommendation-header">
+            <h1 class="section-heading">Get to Know Which Ingredients Suit Your Skin Type</h1>
+            <p class="section-subheading">Select your skin type below to discover personalized ingredient and product recommendations.</p>
+        </div>
+
+        <div class="skin-type-selector">
+            <form method="POST" action="{{ url_for('recommendation.index') }}" class="skin-type-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="skin-type-options">
+                    {% for st in skin_types %}
+                    <label class="skin-type-btn {% if selected_type and st.id == selected_type.id %}selected{% endif %}">
+                        <input type="radio" name="skin_type_id" value="{{ st.id }}" hidden {% if selected_type and st.id == selected_type.id %}checked{% endif %}>
+                        {{ st.name }}
+                    </label>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-primary">Show Results</button>
+            </form>
+        </div>
+
+        {% if selected_type %}
+        <div class="recommendation-results">
+
+            <div class="ingredients-section">
+                <h3 class="rec-section-title">Recommended Ingredients for {{ selected_type.name }} Skin</h3>
+                <div class="ingredients-grid">
+                    {% for ing in ingredients %}
+                    <div class="ingredient-card">
+                        <div class="ingredient-icon">&#127807;</div>
+                        <h4>{{ ing.name }}</h4>
+                        <p>{{ ing.description }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="products-section">
+                <h3 class="rec-section-title">Product Recommendations</h3>
+                <div class="products-grid">
+                    {% for product in products %}
+                    <div class="product-card">
+                        <div class="product-image">
+                            {% if product.image_filename %}
+                            <img src="{{ url_for('static', filename=product.image_filename) }}" alt="{{ product.name }}">
+                            {% else %}
+                            <span>&#9752;</span>
+                            {% endif %}
+                        </div>
+                        <div class="product-info">
+                            <h4>{{ product.name }}</h4>
+                            <p>{{ product.description }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="tips-section">
+                <h3 class="rec-section-title">Skincare Tips for {{ selected_type.name }} Skin</h3>
+                <div class="tips-list">
+                    <ol>
+                        {% for tip in tips %}
+                        <li>{{ tip }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <a href="#top" class="btn btn-primary btn-lg">Back to Top</a>
+            </div>
+
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
