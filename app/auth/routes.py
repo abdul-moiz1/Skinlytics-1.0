@@ -15,6 +15,9 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user and user.check_password(form.password.data):
+            if not user.is_active:
+                flash('Your account has been deactivated. Contact an administrator.', 'danger')
+                return render_template('auth/login.html', form=form)
             login_user(user)
             flash('Welcome back!', 'success')
             next_page = request.args.get('next')
@@ -75,5 +78,29 @@ def admin_toggle_user(user_id):
     db.session.commit()
 
     action = 'promoted to admin' if user.is_admin else 'removed from admin'
+    flash(f'{user.username} has been {action}.', 'success')
+    return redirect(url_for('auth.admin_users'))
+
+
+@bp.route('/admin/users/<int:user_id>/ban', methods=['POST'])
+@login_required
+def admin_ban_user(user_id):
+    if not current_user.is_super_admin:
+        abort(403)
+
+    user = User.query.get_or_404(user_id)
+
+    if user.id == current_user.id:
+        flash('You cannot ban yourself.', 'danger')
+        return redirect(url_for('auth.admin_users'))
+
+    if user.is_super_admin:
+        flash('Cannot ban a super admin.', 'danger')
+        return redirect(url_for('auth.admin_users'))
+
+    user.is_active = not user.is_active
+    db.session.commit()
+
+    action = 'unbanned' if user.is_active else 'banned'
     flash(f'{user.username} has been {action}.', 'success')
     return redirect(url_for('auth.admin_users'))
