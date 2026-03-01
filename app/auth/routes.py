@@ -1,5 +1,5 @@
-from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_user, logout_user, current_user
+from flask import render_template, redirect, url_for, flash, request, abort
+from flask_login import login_required, login_user, logout_user, current_user
 from app.auth import bp
 from app.auth.forms import LoginForm, RegisterForm
 from app.models import User
@@ -46,3 +46,34 @@ def logout():
     logout_user()
     flash('You have been logged out.', 'info')
     return redirect(url_for('main.home'))
+
+
+# --- User Admin ---
+
+@bp.route('/admin/users')
+@login_required
+def admin_users():
+    if not current_user.is_super_admin:
+        abort(403)
+    users = User.query.order_by(User.created_at.desc()).all()
+    return render_template('auth/admin/list.html', users=users)
+
+
+@bp.route('/admin/users/<int:user_id>/toggle', methods=['POST'])
+@login_required
+def admin_toggle_user(user_id):
+    if not current_user.is_super_admin:
+        abort(403)
+
+    user = User.query.get_or_404(user_id)
+
+    if user.id == current_user.id:
+        flash('You cannot change your own admin status.', 'danger')
+        return redirect(url_for('auth.admin_users'))
+
+    user.is_admin = not user.is_admin
+    db.session.commit()
+
+    action = 'promoted to admin' if user.is_admin else 'removed from admin'
+    flash(f'{user.username} has been {action}.', 'success')
+    return redirect(url_for('auth.admin_users'))

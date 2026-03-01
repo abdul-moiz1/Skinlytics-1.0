@@ -5,7 +5,7 @@ def seed_database(db):
     # --- Admin User ---
     admin = User.query.filter_by(is_admin=True).first()
     if not admin:
-        admin = User(username='admin', email='admin@skinlytics.com', is_admin=True)
+        admin = User(username='admin', email='admin@skinlytics.com', is_admin=True, is_super_admin=True)
         admin.set_password('admin123')
         db.session.add(admin)
 
