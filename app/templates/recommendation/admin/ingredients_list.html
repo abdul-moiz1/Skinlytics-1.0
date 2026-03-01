@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Manage Ingredients</h1>
+            <a href="{{ url_for('recommendation.admin_ingredient_create') }}" class="btn btn-primary">Add New Ingredient</a>
+        </div>
+
+        {% if ingredients %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Skin Type</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ing in ingredients %}
+                <tr>
+                    <td>{{ ing.name }}</td>
+                    <td>{{ ing.skin_type.name }}</td>
+                    <td>{{ ing.description[:60] }}{% if ing.description and ing.description|length > 60 %}...{% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('recommendation.admin_ingredient_edit', ingredient_id=ing.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                        <form method="POST" action="{{ url_for('recommendation.admin_ingredient_delete', ingredient_id=ing.id) }}" style="display:inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this ingredient?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p>No ingredients yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

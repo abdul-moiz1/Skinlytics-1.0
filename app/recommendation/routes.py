@@ -3,7 +3,7 @@ import uuid
 from flask import render_template, request, redirect, url_for, flash, current_app, abort
 from flask_login import login_required, current_user
 from app.recommendation import bp
-from app.recommendation.forms import ProductForm
+from app.recommendation.forms import ProductForm, SkinTypeForm, IngredientForm
 from app.models import SkinType, Ingredient, Product
 from app import db
 
@@ -157,3 +157,131 @@ def admin_delete(product_id):
     db.session.commit()
     flash('Product deleted.', 'info')
     return redirect(url_for('recommendation.admin_list'))
+
+
+# --- Skin Types Admin ---
+
+@bp.route('/admin/skin-types')
+@login_required
+def admin_skin_types():
+    if not current_user.is_admin:
+        abort(403)
+    skin_types = SkinType.query.order_by(SkinType.name).all()
+    return render_template('recommendation/admin/skin_types_list.html', skin_types=skin_types)
+
+
+@bp.route('/admin/skin-types/create', methods=['GET', 'POST'])
+@login_required
+def admin_skin_type_create():
+    if not current_user.is_admin:
+        abort(403)
+
+    form = SkinTypeForm()
+    if form.validate_on_submit():
+        skin_type = SkinType(name=form.name.data, description=form.description.data)
+        db.session.add(skin_type)
+        db.session.commit()
+        flash('Skin type added successfully!', 'success')
+        return redirect(url_for('recommendation.admin_skin_types'))
+
+    return render_template('recommendation/admin/skin_type_form.html', form=form, title='Add Skin Type')
+
+
+@bp.route('/admin/skin-types/edit/<int:skin_type_id>', methods=['GET', 'POST'])
+@login_required
+def admin_skin_type_edit(skin_type_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    skin_type = SkinType.query.get_or_404(skin_type_id)
+    form = SkinTypeForm(obj=skin_type)
+
+    if form.validate_on_submit():
+        skin_type.name = form.name.data
+        skin_type.description = form.description.data
+        db.session.commit()
+        flash('Skin type updated successfully!', 'success')
+        return redirect(url_for('recommendation.admin_skin_types'))
+
+    return render_template('recommendation/admin/skin_type_form.html', form=form, title='Edit Skin Type')
+
+
+@bp.route('/admin/skin-types/delete/<int:skin_type_id>', methods=['POST'])
+@login_required
+def admin_skin_type_delete(skin_type_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    skin_type = SkinType.query.get_or_404(skin_type_id)
+    db.session.delete(skin_type)
+    db.session.commit()
+    flash('Skin type deleted.', 'info')
+    return redirect(url_for('recommendation.admin_skin_types'))
+
+
+# --- Ingredients Admin ---
+
+@bp.route('/admin/ingredients')
+@login_required
+def admin_ingredients():
+    if not current_user.is_admin:
+        abort(403)
+    ingredients = Ingredient.query.order_by(Ingredient.name).all()
+    return render_template('recommendation/admin/ingredients_list.html', ingredients=ingredients)
+
+
+@bp.route('/admin/ingredients/create', methods=['GET', 'POST'])
+@login_required
+def admin_ingredient_create():
+    if not current_user.is_admin:
+        abort(403)
+
+    form = IngredientForm()
+    form.skin_type_id.choices = [(st.id, st.name) for st in SkinType.query.order_by(SkinType.name).all()]
+
+    if form.validate_on_submit():
+        ingredient = Ingredient(
+            name=form.name.data,
+            description=form.description.data,
+            skin_type_id=form.skin_type_id.data,
+        )
+        db.session.add(ingredient)
+        db.session.commit()
+        flash('Ingredient added successfully!', 'success')
+        return redirect(url_for('recommendation.admin_ingredients'))
+
+    return render_template('recommendation/admin/ingredient_form.html', form=form, title='Add Ingredient')
+
+
+@bp.route('/admin/ingredients/edit/<int:ingredient_id>', methods=['GET', 'POST'])
+@login_required
+def admin_ingredient_edit(ingredient_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    ingredient = Ingredient.query.get_or_404(ingredient_id)
+    form = IngredientForm(obj=ingredient)
+    form.skin_type_id.choices = [(st.id, st.name) for st in SkinType.query.order_by(SkinType.name).all()]
+
+    if form.validate_on_submit():
+        ingredient.name = form.name.data
+        ingredient.description = form.description.data
+        ingredient.skin_type_id = form.skin_type_id.data
+        db.session.commit()
+        flash('Ingredient updated successfully!', 'success')
+        return redirect(url_for('recommendation.admin_ingredients'))
+
+    return render_template('recommendation/admin/ingredient_form.html', form=form, title='Edit Ingredient')
+
+
+@bp.route('/admin/ingredients/delete/<int:ingredient_id>', methods=['POST'])
+@login_required
+def admin_ingredient_delete(ingredient_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    ingredient = Ingredient.query.get_or_404(ingredient_id)
+    db.session.delete(ingredient)
+    db.session.commit()
+    flash('Ingredient deleted.', 'info')
+    return redirect(url_for('recommendation.admin_ingredients'))

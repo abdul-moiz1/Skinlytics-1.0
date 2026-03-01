@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Manage Quiz Questions</h1>
+            <a href="{{ url_for('quiz.admin_quiz_create') }}" class="btn btn-primary">Add New Question</a>
+        </div>
+
+        {% if questions %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>Correct</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in questions %}
+                <tr>
+                    <td>{{ q.order }}</td>
+                    <td>{{ q.question_text[:80] }}{% if q.question_text|length > 80 %}...{% endif %}</td>
+                    <td>{{ q.correct_answer | upper }}</td>
+                    <td>
+                        <a href="{{ url_for('quiz.admin_quiz_edit', question_id=q.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                        <form method="POST" action="{{ url_for('quiz.admin_quiz_delete', question_id=q.id) }}" style="display:inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this question?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p>No quiz questions yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

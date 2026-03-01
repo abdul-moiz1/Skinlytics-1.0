@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Manage Skin Types</h1>
+            <a href="{{ url_for('recommendation.admin_skin_type_create') }}" class="btn btn-primary">Add New Skin Type</a>
+        </div>
+
+        {% if skin_types %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for st in skin_types %}
+                <tr>
+                    <td>{{ st.name }}</td>
+                    <td>{{ st.description[:80] }}{% if st.description and st.description|length > 80 %}...{% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('recommendation.admin_skin_type_edit', skin_type_id=st.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                        <form method="POST" action="{{ url_for('recommendation.admin_skin_type_delete', skin_type_id=st.id) }}" style="display:inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this skin type? This will also remove related products and ingredients.')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p>No skin types yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

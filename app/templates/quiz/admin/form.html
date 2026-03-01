@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <h1>{{ title }}</h1>
+
+        <form class="admin-form" method="POST">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.question_text.label }}
+                {{ form.question_text(class='form-input', rows=3) }}
+                {% for error in form.question_text.errors %}
+                <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.option_a.label }}
+                {{ form.option_a(class='form-input') }}
+                {% for error in form.option_a.errors %}
+                <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.option_b.label }}
+                {{ form.option_b(class='form-input') }}
+                {% for error in form.option_b.errors %}
+                <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.option_c.label }}
+                {{ form.option_c(class='form-input') }}
+                {% for error in form.option_c.errors %}
+                <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.correct_answer.label }}
+                {{ form.correct_answer(class='form-input') }}
+                {% for error in form.correct_answer.errors %}
+                <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                {{ form.order.label }}
+                {{ form.order(class='form-input') }}
+                {% for error in form.order.errors %}
+                <div class="form-error">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="form-actions">
+                {{ form.submit(class='btn btn-primary') }}
+                <a href="{{ url_for('quiz.admin_quiz_list') }}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
