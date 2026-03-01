@@ -1,6 +1,11 @@
-from flask import render_template, request
+import os
+import uuid
+from flask import render_template, request, redirect, url_for, flash, current_app, abort
+from flask_login import login_required, current_user
 from app.recommendation import bp
+from app.recommendation.forms import ProductForm
 from app.models import SkinType, Ingredient, Product
+from app import db
 
 
 SKIN_TIPS = {
@@ -65,3 +70,90 @@ def index():
                            ingredients=ingredients,
                            products=products,
                            tips=tips)
+
+
+# --- Admin routes ---
+
+@bp.route('/admin')
+@login_required
+def admin_list():
+    if not current_user.is_admin:
+        abort(403)
+    products = Product.query.order_by(Product.name).all()
+    return render_template('recommendation/admin/list.html', products=products)
+
+
+@bp.route('/admin/create', methods=['GET', 'POST'])
+@login_required
+def admin_create():
+    if not current_user.is_admin:
+        abort(403)
+
+    form = ProductForm()
+    form.skin_type_id.choices = [(st.id, st.name) for st in SkinType.query.order_by(SkinType.name).all()]
+
+    if form.validate_on_submit():
+        filename = None
+        if form.image.data:
+            file = form.image.data
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            filename = f"product_{uuid.uuid4().hex}.{ext}"
+            filepath = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+            file.save(filepath)
+            filename = 'uploads/' + filename
+
+        product = Product(
+            name=form.name.data,
+            description=form.description.data,
+            image_filename=filename,
+            skin_type_id=form.skin_type_id.data,
+        )
+        db.session.add(product)
+        db.session.commit()
+        flash('Product added successfully!', 'success')
+        return redirect(url_for('recommendation.admin_list'))
+
+    return render_template('recommendation/admin/form.html', form=form, title='Add Product')
+
+
+@bp.route('/admin/edit/<int:product_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit(product_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    product = Product.query.get_or_404(product_id)
+    form = ProductForm(obj=product)
+    form.skin_type_id.choices = [(st.id, st.name) for st in SkinType.query.order_by(SkinType.name).all()]
+
+    if form.validate_on_submit():
+        product.name = form.name.data
+        product.description = form.description.data
+        product.skin_type_id = form.skin_type_id.data
+
+        if form.image.data:
+            file = form.image.data
+            ext = file.filename.rsplit('.', 1)[1].lower()
+            filename = f"product_{uuid.uuid4().hex}.{ext}"
+            filepath = os.path.join(current_app.root_path, 'static', 'uploads', filename)
+            file.save(filepath)
+            product.image_filename = 'uploads/' + filename
+
+        db.session.commit()
+        flash('Product updated successfully!', 'success')
+        return redirect(url_for('recommendation.admin_list'))
+
+    return render_template('recommendation/admin/form.html', form=form, title='Edit Product')
+
+
+@bp.route('/admin/delete/<int:product_id>', methods=['POST'])
+@login_required
+def admin_delete(product_id):
+    if not current_user.is_admin:
+        abort(403)
+
+    product = Product.query.get_or_404(product_id)
+    db.session.delete(product)
+    db.session.commit()
+    flash('Product deleted.', 'info')
+    return redirect(url_for('recommendation.admin_list'))

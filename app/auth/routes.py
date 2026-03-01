@@ -9,7 +9,7 @@ from app import db
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.home'))
+        return redirect(url_for('scan.index'))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -18,7 +18,7 @@ def login():
             login_user(user)
             flash('Welcome back!', 'success')
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('main.home'))
+            return redirect(next_page or url_for('scan.index'))
         flash('Invalid email or password.', 'danger')
 
     return render_template('auth/login.html', form=form)

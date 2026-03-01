@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="container">
+        <div class="admin-header">
+            <h1>Manage Products</h1>
+            <a href="{{ url_for('recommendation.admin_create') }}" class="btn btn-primary">Add New Product</a>
+        </div>
+
+        {% if products %}
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Skin Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>
+                        {% if product.image_filename and product.image_filename.startswith('http') %}
+                        <img src="{{ product.image_filename }}" alt="{{ product.name }}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
+                        {% elif product.image_filename %}
+                        <img src="{{ url_for('static', filename=product.image_filename) }}" alt="{{ product.name }}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;">
+                        {% else %}
+                        <span style="font-size:1.5rem;">&#9752;</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.skin_type.name }}</td>
+                    <td>
+                        <a href="{{ url_for('recommendation.admin_edit', product_id=product.id) }}" class="btn btn-sm btn-outline">Edit</a>
+                        <form method="POST" action="{{ url_for('recommendation.admin_delete', product_id=product.id) }}" style="display:inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this product?')">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state">
+            <p>No products yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

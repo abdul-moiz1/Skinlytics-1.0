@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Auto dismiss after 5 seconds
         setTimeout(function () {
             msg.style.opacity = '0';
-            msg.style.transform = 'translateY(-20px)';
+            msg.style.transform = 'translateX(40px)';
             setTimeout(function () { msg.remove(); }, 300);
         }, 5000);
 
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (dismissBtn) {
             dismissBtn.addEventListener('click', function () {
                 msg.style.opacity = '0';
-                msg.style.transform = 'translateY(-20px)';
+                msg.style.transform = 'translateX(40px)';
                 setTimeout(function () { msg.remove(); }, 300);
             });
         }

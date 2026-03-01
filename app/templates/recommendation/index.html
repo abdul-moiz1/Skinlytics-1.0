@@ -45,8 +45,10 @@
                     {% for product in products %}
                     <div class="product-card">
                         <div class="product-image">
-                            {% if product.image_filename %}
-                            <img src="{{ url_for('static', filename=product.image_filename) }}" alt="{{ product.name }}">
+                            {% if product.image_filename and product.image_filename.startswith('http') %}
+                            <img src="{{ product.image_filename }}" alt="{{ product.name }}" onerror="this.parentElement.innerHTML='&#9752;'">
+                            {% elif product.image_filename %}
+                            <img src="{{ url_for('static', filename=product.image_filename) }}" alt="{{ product.name }}" onerror="this.parentElement.innerHTML='&#9752;'">
                             {% else %}
                             <span>&#9752;</span>
                             {% endif %}

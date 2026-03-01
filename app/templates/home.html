@@ -12,7 +12,7 @@
                 <h1>Pure Ingredients for <span class="highlight">Radiant Skin</span> Everyday</h1>
                 <p>Discover AI-powered skin analysis and personalized skincare recommendations tailored just for you.</p>
                 <div class="hero-buttons">
-                    <a href="{{ url_for('auth.register') }}" class="hero-cta">Get Started</a>
+                    <a href="{% if current_user.is_authenticated %}{{ url_for('scan.index') }}{% else %}{{ url_for('auth.register') }}{% endif %}" class="hero-cta">Get Started</a>
                     <a href="#about" class="hero-cta-secondary">Learn More</a>
                 </div>
             </div>
@@ -196,7 +196,7 @@
             <p>
                 Join thousands who trust Skinlytics for their daily skincare routine.
             </p>
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+            <a href="{% if current_user.is_authenticated %}{{ url_for('scan.index') }}{% else %}{{ url_for('auth.register') }}{% endif %}" class="btn btn-primary btn-lg">
                 Get Started Free
             </a>
         </div>
