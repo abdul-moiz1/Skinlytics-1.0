@@ -43,6 +43,10 @@ def create_app(config_class=Config):
     from app.blog import bp as blog_bp
     app.register_blueprint(blog_bp, url_prefix='/blog')
 
+    from app.api import api_bp
+    csrf.exempt(api_bp)
+    app.register_blueprint(api_bp)
+
     # Error handler for file too large
     @app.errorhandler(413)
     def too_large(e):
